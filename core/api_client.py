@@ -56,7 +56,7 @@ class JDYClient:
 
     def get_form_widgets(self, entry_id: str) -> Dict[str, Any]:
         """获取表单字段信息"""
-        endpoint = "/app/entry/widgets/get"
+        endpoint = "/app/entry/widget/list"
         payload = {
             "app_id": self.app_id,
             "entry_id": entry_id
