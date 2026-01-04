@@ -7,22 +7,21 @@ class VolunteerModel:
     FORM_NAME = "义工档案"
     ENTRY_ID = VOLUNTEER_ENTRY_ID
     
-    FIELD_NAME = "姓名"
-    FIELD_PHONE = "手机号"
-    FIELD_EMAIL = "邮箱"
-    FIELD_AGE = "年龄"
-    FIELD_GENDER = "性别"
-    FIELD_ADDRESS = "住址"
-    FIELD_EMERGENCY_CONTACT = "紧急联系人"
-    FIELD_EMERGENCY_PHONE = "紧急联系电话"
-    FIELD_SKILLS = "技能特长"
-    FIELD_EXPERIENCE = "义工经验"
-    FIELD_AVAILABLE_TIME = "可服务时间"
-    FIELD_VOLUNTEER_TYPE = "义工类型"
-    FIELD_JOIN_DATE = "加入日期"
-    FIELD_STATUS = "状态"
-    FIELD_TOTAL_HOURS = "累计工时"
-    FIELD_REMARKS = "备注"
+    # 字段映射到 widget ID
+    FIELD_NAME = "_widget_1767515266471"                # 姓名
+    FIELD_PHONE = "_widget_1767515266472"               # 手机号
+    FIELD_ID_CARD = "_widget_1767516573304"             # 身份证号码
+    FIELD_AGE = "_widget_1767515266474"                 # 年龄
+    FIELD_GENDER = "_widget_1767515266475"              # 性别
+    FIELD_SKILLS = "_widget_1767515266477"              # 技能特长（多选）
+    FIELD_AREA = "_widget_1767515266480"                # 常住区域
+    FIELD_AVAILABLE_TIME = "_widget_1767515266482"      # 可服务时段（多选）
+    FIELD_IS_ORDAINED = "_widget_1767516573307"         # 是否皈依
+    FIELD_ORDAINED_DATE = "_widget_1767516573309"       # 皈依日期
+    FIELD_DHARMA_NAME = "_widget_1767516573310"         # 法号
+    FIELD_JOIN_DATE = "_widget_1767516573312"           # 加入日期
+    FIELD_STATUS = "_widget_1767516573296"              # 状态
+    FIELD_REMARKS = "_widget_1767516573315"             # 备注
     
     @classmethod
     def create(cls, **data) -> str:
