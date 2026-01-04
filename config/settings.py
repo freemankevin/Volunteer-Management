@@ -1,0 +1,8 @@
+# 职责：加载环境变量，校验必填项
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+API_KEY = os.getenv("JDY_API_KEY")
+APP_ID  = os.getenv("JDY_APP_ID")
+assert API_KEY and APP_ID, "请先配置 .env 文件"
