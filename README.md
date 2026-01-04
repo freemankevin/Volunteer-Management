@@ -219,7 +219,3 @@ def custom_method(self, ...):
     endpoint = f"/app/{self.app_id}/custom"
     return self.request('GET', endpoint, ...)
 ```
-
-## 📄 License
-
-MIT
