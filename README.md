@@ -220,12 +220,6 @@ def custom_method(self, ...):
     return self.request('GET', endpoint, ...)
 ```
 
-## 📞 技术支持
-
-- 简道云官方：https://www.jiandaoyun.com
-- 文档：https://docs.jiandaoyun.com
-- 联系：400-111-0909
-
 ## 📄 License
 
 MIT
