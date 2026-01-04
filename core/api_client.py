@@ -1,31 +1,29 @@
-# core/api_client.py - 精简版本（只保留必要的）
+# core/api_client.py - 适配简道云v5 API格式
 import requests
-import time
-import hashlib
 import logging
+import time
 from typing import Dict, Any, Optional, List
 from config.settings import API_KEY, APP_ID
 
 class JDYClient:
-    """简道云API客户端 - 核心版本"""
+    """简道云API客户端 - v5版本"""
     
     def __init__(self):
+        # 使用 v5 API 根据官方文档
         self.base_url = "https://api.jiandaoyun.com/api/v5"
         self.app_id = APP_ID
         self.api_key = API_KEY
         self.logger = logging.getLogger("JDYClient")
     
     def _make_auth_headers(self) -> Dict[str, str]:
-        """生成认证头部"""
-        timestamp = str(int(time.time() * 1000))
-        sign_str = f'{self.api_key}{timestamp}'
-        signature = hashlib.md5(sign_str.encode('utf-8')).hexdigest()
-        
+        """
+        生成认证头部 - 简道云格式
+        根据官方文档：https://hc.jiandaoyun.com/open/12047
+        使用 Authorization: Bearer YOUR_APIKEY
+        """
         return {
             'Content-Type': 'application/json',
-            'X-Api-Key': self.api_key,
-            'X-Timestamp': timestamp,
-            'X-Sign': signature
+            'Authorization': f'Bearer {self.api_key}'
         }
 
     def request(self, method: str, endpoint: str, json_data: Optional[Dict] = None, 
@@ -47,15 +45,23 @@ class JDYClient:
                 self.logger.info(f"{method} {endpoint} -> {response.status_code}")
                 
                 if response.status_code == 200:
-                    result = response.json()
-                    if result.get('code') == 0:
-                        return result.get('data', {})
-                    else:
-                        raise Exception(f"API error: {result.get('msg')}")
+                    try:
+                        result = response.json()
+                        # 简道云返回格式：{"code": 0, "msg": "success", "data": {...}}
+                        if result.get('code') == 0:
+                            return result.get('data', {})
+                        else:
+                            raise Exception(f"API error: {result.get('msg', '未知错误')}")
+                    except ValueError as e:
+                        # 响应不是JSON
+                        self.logger.error(f"响应不是JSON格式: {response.text[:200]}")
+                        raise Exception(f"响应格式错误: {str(e)}")
                 elif response.status_code == 403:
-                    raise Exception("权限被拒绝 - 检查API密钥")
+                    raise Exception("403 权限被拒绝 - API密钥或签名有误")
+                elif response.status_code == 404:
+                    raise Exception("404 找不到资源 - 检查APP_ID是否正确")
                 else:
-                    raise Exception(f"HTTP {response.status_code}")
+                    raise Exception(f"HTTP {response.status_code}: {response.text[:100]}")
                     
             except Exception as e:
                 self.logger.error(f"请求失败 (尝试 {attempt + 1}/{retries}): {str(e)}")
@@ -63,24 +69,58 @@ class JDYClient:
                     raise
                 time.sleep(2 ** attempt)
 
-    def create_form(self, form_data: Dict[str, Any]) -> str:
-        """创建表单"""
-        endpoint = f"/app/{self.app_id}/entry"
-        result = self.request('POST', endpoint, form_data)
-        return result.get('entryId')
+    def get_form_widgets(self, entry_id: str) -> Dict[str, Any]:
+        """获取表单字段信息"""
+        endpoint = "/app/entry/widgets/get"
+        payload = {
+            "app_id": self.app_id,
+            "entry_id": entry_id
+        }
+        return self.request('POST', endpoint, payload)
 
-    def create_dashboard(self, dashboard_data: Dict[str, Any]) -> str:
-        """创建仪表盘"""
-        endpoint = f"/app/{self.app_id}/dashboard"
-        result = self.request('POST', endpoint, dashboard_data)
-        return result.get('dashboardId')
+    def create_data(self, entry_id: str, data: Dict[str, Any]) -> str:
+        """创建单条数据"""
+        endpoint = "/app/entry/data/create"
+        payload = {
+            "app_id": self.app_id,
+            "entry_id": entry_id,
+            "data": data
+        }
+        result = self.request('POST', endpoint, payload)
+        return result.get('_id')
 
-    def get_form_list(self) -> List[Dict[str, Any]]:
-        """获取表单列表"""
-        endpoint = f"/app/{self.app_id}/form"
-        return self.request('GET', endpoint)
+    def query_data(self, entry_id: str, filters: Dict = None, limit: int = 100) -> List[Dict]:
+        """查询数据"""
+        endpoint = "/app/entry/data/list"
+        payload = {
+            "app_id": self.app_id,
+            "entry_id": entry_id,
+            "limit": limit
+        }
+        if filters:
+            payload["filter"] = filters
+        result = self.request('POST', endpoint, payload)
+        return result.get('data', [])
 
-    def get_dashboard_list(self) -> List[Dict[str, Any]]:
-        """获取仪表盘列表"""
-        endpoint = f"/app/{self.app_id}/dashboard"
-        return self.request('GET', endpoint)
+    def update_data(self, entry_id: str, data_id: str, data: Dict[str, Any]) -> bool:
+        """更新单条数据"""
+        endpoint = "/app/entry/data/update"
+        payload = {
+            "app_id": self.app_id,
+            "entry_id": entry_id,
+            "data_id": data_id,
+            "data": data
+        }
+        self.request('POST', endpoint, payload)
+        return True
+
+    def delete_data(self, entry_id: str, data_id: str) -> bool:
+        """删除单条数据"""
+        endpoint = "/app/entry/data/delete"
+        payload = {
+            "app_id": self.app_id,
+            "entry_id": entry_id,
+            "data_id": data_id
+        }
+        self.request('POST', endpoint, payload)
+        return True
