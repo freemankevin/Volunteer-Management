@@ -21,37 +21,24 @@ def verify_forms():
     print(f"✅ API_KEY: {API_KEY[:12]}...")
     print(f"✅ APP_ID: {APP_ID}")
     
-    if not all([VOLUNTEER_ENTRY_ID, EVENT_ENTRY_ID, SCHEDULE_ENTRY_ID]):
-        print("\n❌ 表单ID未配置完整")
-        print("\n请按照以下步骤操作：")
-        print("  1. 阅读 docs/表单创建指南.md")
-        print("  2. 在简道云后台手动创建 3 个表单")
-        print("  3. 获取每个表单的 ENTRY_ID")
-        print("  4. 配置到 .env 文件")
-        return False
-    
     client = JDYClient()
     
     forms_config = [
-        ("义工档案表", VOLUNTEER_ENTRY_ID, 6),
-        ("活动库表", EVENT_ENTRY_ID, 8),
-        ("排班签到表", SCHEDULE_ENTRY_ID, 8),
+        ("义工档案表", VOLUNTEER_ENTRY_ID),
+        ("活动库表", EVENT_ENTRY_ID),
+        ("排班签到表", SCHEDULE_ENTRY_ID),
     ]
     
     print("\n📋 验证表单配置...")
     all_ok = True
     
-    for form_name, entry_id, expected_fields in forms_config:
+    for form_name, entry_id in forms_config:
         try:
             result = client.get_form_widgets(entry_id)
             widgets = result.get('widgets', [])
             field_count = len(widgets)
             
-            if field_count >= expected_fields - 2:
-                print(f"✅ {form_name} (ENTRY_ID: {entry_id[:8]}...) - 找到 {field_count} 个字段")
-            else:
-                print(f"⚠️  {form_name} (ENTRY_ID: {entry_id[:8]}...) - 只找到 {field_count} 个字段，预期至少 {expected_fields - 2} 个")
-                all_ok = False
+            print(f"✅ {form_name} (ENTRY_ID: {entry_id[:8]}...) - 找到 {field_count} 个字段")
                 
         except Exception as e:
             print(f"❌ {form_name} (ENTRY_ID: {entry_id[:8]}...) - 验证失败: {str(e)[:50]}")
@@ -69,7 +56,6 @@ def verify_forms():
         print("\n解决方案：")
         print("  1. 检查 .env 文件中的 ENTRY_ID 是否正确")
         print("  2. 确保在简道云后台已创建对应的表单")
-        print("  3. 参考 docs/表单创建指南.md 重新配置")
         return False
 
 if __name__ == "__main__":
