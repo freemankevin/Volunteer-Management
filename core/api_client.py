@@ -88,7 +88,8 @@ class JDYClient:
         payload["transaction_id"] = transaction_id
         
         result = self.request('POST', endpoint, payload)
-        return result.get('_id', '')
+        # 响应格式: {"data": {"_id": "xxx", ...}}
+        return result.get('data', {}).get('_id', '')
 
     def query_data(self, entry_id: str, filters: Dict = None, limit: int = 100, 
                   data_id: str = None) -> List[Dict]:
@@ -181,7 +182,12 @@ class JDYClient:
         payload["transaction_id"] = transaction_id
         
         result = self.request('POST', endpoint, payload)
-        return result.get('success_ids', [])
+        # 响应格式: {"data": [{"_id": "xxx"}, ...]} 或 {"success_ids": [...]}
+        if 'success_ids' in result:
+            return result.get('success_ids', [])
+        # 如果响应是data列表，提取_id
+        data = result.get('data', [])
+        return [item.get('_id') for item in data if item.get('_id')]
 
     def batch_update_data(self, entry_id: str, data_ids: List[str], 
                          data: Dict[str, Any], transaction_id: Optional[str] = None) -> bool:
