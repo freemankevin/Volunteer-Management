@@ -60,14 +60,29 @@ def get_field_value(data, field_key, default=''):
     # 如果是直接的字符串或其他类型
     return value if value else default
 
+def parse_date_string(date_str):
+    """解析日期字符串，支持多种格式"""
+    if not date_str:
+        return None
+    
+    try:
+        if 'T' in date_str:
+            return datetime.strptime(date_str.split('T')[0], '%Y-%m-%d')
+        elif ' ' in date_str:
+            return datetime.strptime(date_str.split(' ')[0], '%Y-%m-%d')
+        else:
+            return datetime.strptime(date_str, '%Y-%m-%d')
+    except Exception as e:
+        print(f"⚠️  日期解析失败 '{date_str}': {e}")
+        return None
+
 def extract_time_only(datetime_str):
     """从日期时间字符串中提取时间部分（HH:MM）"""
     if not datetime_str:
         return ''
-    # 如果是 "2026-03-16 08:30:00" 格式，提取 "08:30"
     if ' ' in datetime_str:
         time_part = datetime_str.split(' ')[1]
-        return time_part.split(':')[0] + ':' + time_part.split(':')[1]  # HH:MM
+        return time_part.split(':')[0] + ':' + time_part.split(':')[1]
     return ''
 
 def generate_schedule(volunteer_data, event_data):
@@ -96,43 +111,45 @@ def generate_schedule(volunteer_data, event_data):
     else:
         event_time = "09:00-17:00"
     
+    # 先随机选择一个状态
+    status = random.choice(STATUSES)
+    
     # 根据状态生成相应的时间信息
     check_in_time = None
     check_out_time = None
     actual_hours = None
     
-    # 70% 的概率生成签到时间（包括所有状态，让数据更丰富）
-    if random.random() < 0.7:
+    # 根据状态决定是否生成签到签退时间
+    if status in ['已签到', '已签退']:
         try:
-            event_date_obj = datetime.strptime(event_date, '%Y-%m-%d')
+            event_date_obj = parse_date_string(event_date)
+            if not event_date_obj:
+                event_date_obj = datetime.now()
+            
             check_in_hour = random.randint(8, 10)
             check_in_minute = random.choice([0, 15, 30, 45])
             check_in_second = random.randint(0, 59)
             check_in_time = event_date_obj.strftime('%Y-%m-%d') + f" {check_in_hour:02d}:{check_in_minute:02d}:{check_in_second:02d}"
-        except:
+            
+            # 如果状态是已签退，则生成签退时间
+            if status == '已签退':
+                check_in_dt = datetime.strptime(check_in_time, '%Y-%m-%d %H:%M:%S')
+                hours_worked = random.randint(2, 8)
+                minutes_worked = random.choice([0, 15, 30, 45])
+                check_out_second = random.randint(0, 59)
+                check_out_dt = check_in_dt + timedelta(hours=hours_worked, minutes=minutes_worked, seconds=check_out_second)
+                check_out_time = check_out_dt.strftime('%Y-%m-%d %H:%M:%S')
+                actual_hours = round(hours_worked + minutes_worked / 60, 2)
+        except Exception as e:
+            print(f"⚠️  生成签到签退时间失败: {e}")
             check_in_time = None
-    
-    # 在有签到时间的基础上，50% 概率生成签退时间（已签退或部分签到）
-    if check_in_time and random.random() < 0.5:
-        try:
-            check_in_dt = datetime.strptime(check_in_time, '%Y-%m-%d %H:%M:%S')
-            hours_worked = random.randint(2, 8)
-            check_out_second = random.randint(0, 59)
-            check_out_dt = check_in_dt + timedelta(hours=hours_worked, seconds=check_out_second)
-            check_out_time = check_out_dt.strftime('%Y-%m-%d %H:%M:%S')
-            actual_hours = hours_worked
-            # 如果有签退，把状态改为已签退
-            status = '已签退'
-        except:
             check_out_time = None
-            status = random.choice(STATUSES)
-    else:
-        status = random.choice(STATUSES)
+            actual_hours = None
     
     data = {
         ScheduleModel.FIELD_NAME: volunteer_name,
         ScheduleModel.FIELD_PHONE: volunteer_phone,
-        ScheduleModel.FIELD_GENDER: volunteer_gender,  # 从义工档案表获取
+        ScheduleModel.FIELD_GENDER: volunteer_gender,
         ScheduleModel.FIELD_EVENT_NAME: event_name,
         ScheduleModel.FIELD_EVENT_DATE: event_date,
         ScheduleModel.FIELD_EVENT_TIME: event_time,
@@ -143,15 +160,13 @@ def generate_schedule(volunteer_data, event_data):
         ScheduleModel.FIELD_REMARKS: random.choice(REMARKS),
     }
     
-    # 只在状态为已签到或已签退时才添加时间信息
+    # 添加签到签退时间信息
     if check_in_time:
         data[ScheduleModel.FIELD_CHECK_IN_TIME] = check_in_time
     if check_out_time:
         data[ScheduleModel.FIELD_CHECK_OUT_TIME] = check_out_time
     if actual_hours:
         data[ScheduleModel.FIELD_ACTUAL_HOURS] = actual_hours
-    
-    return data
     
     return data
 
