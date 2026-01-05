@@ -153,3 +153,4 @@ python scripts/init_system.py
 - [简道云官方文档](https://hc.jiandaoyun.com/doc/12596)
 - [简道云 API 文档](https://hc.jiandaoyun.com/open/10992)
 - [表单和数据接口](https://hc.jiandaoyun.com/open/10993)
+- [简道云 Openapi 多语言调用示例](https://github.com/heyjackgo/jdy-api/tree/master)
