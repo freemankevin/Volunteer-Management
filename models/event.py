@@ -8,22 +8,19 @@ class EventModel:
     FORM_NAME = "活动库"
     ENTRY_ID = EVENT_ENTRY_ID
     
-    FIELD_EVENT_NAME = "活动名称"
-    FIELD_EVENT_TYPE = "活动类型"
-    FIELD_EVENT_DATE = "活动日期"
-    FIELD_START_TIME = "开始时间"
-    FIELD_END_TIME = "结束时间"
-    FIELD_LOCATION = "活动地点"
-    FIELD_DESCRIPTION = "活动描述"
-    FIELD_REQUIRED_VOLUNTEERS = "需要义工人数"
-    FIELD_REQUIRED_SKILLS = "所需技能"
-    FIELD_CONTACT_PERSON = "联系人"
-    FIELD_CONTACT_PHONE = "联系电话"
-    FIELD_STATUS = "活动状态"
-    FIELD_REGISTRATION_DEADLINE = "报名截止日"
-    FIELD_MAX_PARTICIPANTS = "最大参与人数"
-    FIELD_CURRENT_PARTICIPANTS = "当前参与人数"
-    FIELD_NOTES = "备注"
+    # 字段映射到 widget ID
+    FIELD_EVENT_NAME = "_widget_1767519959682"           # 活动名称
+    FIELD_EVENT_TYPE = "_widget_1767519959684"           # 活动类型
+    FIELD_DESCRIPTION = "_widget_1767519959687"          # 活动描述
+    FIELD_EVENT_DATE = "_widget_1767519959689"           # 活动日期
+    FIELD_START_TIME = "_widget_1767519959690"           # 开始时间
+    FIELD_END_TIME = "_widget_1767519959691"             # 结束时间
+    FIELD_LOCATION = "_widget_1767519959693"             # 活动地点
+    FIELD_REQUIRED_VOLUNTEERS = "_widget_1767519959695"  # 需要义工人数
+    FIELD_CURRENT_PARTICIPANTS = "_widget_1767519959696" # 当前报名人数
+    FIELD_STATUS = "_widget_1767519959699"               # 活动状态
+    FIELD_REQUIRED_SKILLS = "_widget_1767519959703"      # 所需技能（复选框）
+    FIELD_REMARKS = "_widget_1767519959705"              # 备注
     
     @classmethod
     def create(cls, **data) -> str:

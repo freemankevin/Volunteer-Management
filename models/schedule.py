@@ -8,21 +8,21 @@ class ScheduleModel:
     FORM_NAME = "排班签到"
     ENTRY_ID = SCHEDULE_ENTRY_ID
     
-    FIELD_VOLUNTEER_NAME = "义工姓名"
-    FIELD_VOLUNTEER_PHONE = "义工电话"
-    FIELD_EVENT_NAME = "活动名称"
-    FIELD_EVENT_DATE = "活动日期"
-    FIELD_START_TIME = "开始时间"
-    FIELD_END_TIME = "结束时间"
-    FIELD_LOCATION = "活动地点"
-    FIELD_ROLE = "担任角色"
-    FIELD_STATUS = "签到状态"
-    FIELD_CHECK_IN_TIME = "签到时间"
-    FIELD_CHECK_OUT_TIME = "签退时间"
-    FIELD_ACTUAL_HOURS = "实际工时"
-    FIELD_REMARKS = "备注"
-    FIELD_SCHEDULE_DATE = "排班日期"
-    FIELD_CONTACT_PERSON = "联系人"
+    # 字段映射到 widget ID
+    FIELD_NAME = "_widget_1767577273272"               # 姓名
+    FIELD_PHONE = "_widget_1767577273274"              # 手机号
+    FIELD_GENDER = "_widget_1767577273275"             # 性别
+    FIELD_EVENT_NAME = "_widget_1767577507155"         # 活动名称
+    FIELD_EVENT_DATE = "_widget_1767577507156"         # 活动日期
+    FIELD_EVENT_TIME = "_widget_1767577507158"         # 活动时间
+    FIELD_LOCATION = "_widget_1767577507159"           # 活动地点
+    FIELD_ROLE = "_widget_1767577975108"               # 担任角色
+    FIELD_STATUS = "_widget_1767577975110"             # 排班状态
+    FIELD_CHECK_IN_TIME = "_widget_1767577975112"      # 签到时间
+    FIELD_CHECK_OUT_TIME = "_widget_1767577975113"     # 签退时间
+    FIELD_ACTUAL_HOURS = "_widget_1767577975114"       # 实际工时
+    FIELD_WORK_PERFORMANCE = "_widget_1767577975115"   # 工作表现
+    FIELD_REMARKS = "_widget_1767577975117"            # 备注
     
     @classmethod
     def create(cls, **data) -> str:
@@ -56,16 +56,16 @@ class ScheduleModel:
         return pd.DataFrame(data)
     
     @classmethod
-    def list_by_volunteer(cls, volunteer_name: str) -> pd.DataFrame:
+    def list_by_volunteer(cls, name: str) -> pd.DataFrame:
         """获取指定义工的排班记录"""
         client = JDYClient()
         filters = {
             "rel": "and",
             "cond": [{
-                "field": cls.FIELD_VOLUNTEER_NAME,
+                "field": cls.FIELD_NAME,
                 "type": "text",
                 "method": "eq",
-                "value": [volunteer_name]
+                "value": [name]
             }]
         }
         data = client.query_data(cls.ENTRY_ID, filters=filters)
@@ -89,7 +89,7 @@ class ScheduleModel:
     
     @classmethod
     def list_by_status(cls, status: str) -> pd.DataFrame:
-        """按签到状态筛选"""
+        """按排班状态筛选"""
         client = JDYClient()
         filters = {
             "rel": "and",
@@ -127,9 +127,9 @@ class ScheduleModel:
         return cls.update(record_id, **update_data)
     
     @classmethod
-    def get_volunteer_hours(cls, volunteer_name: str) -> float:
+    def get_volunteer_hours(cls, name: str) -> float:
         """获取义工累计工时"""
-        schedules = cls.list_by_volunteer(volunteer_name)
+        schedules = cls.list_by_volunteer(name)
         if schedules.empty:
             return 0.0
         
