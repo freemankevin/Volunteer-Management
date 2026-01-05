@@ -2,7 +2,10 @@
 
 基于简道云 API 的轻量化义工管理后台。
 
-> ⚠️ **重要说明**：简道云 API 不支持创建表单，需要先在简道云后台手动创建表单，然后通过 API 操作数据。
+> ⚠️ **重要说明**：
+> 1. 简道云 API 不支持创建表单，需要先在简道云后台手动创建表单，然后通过 API 操作数据。
+> 2. 只有试用版、企业版+ 才能使用 API 操作表单数据，免费版、标准版本无法使用。
+
 
 ## 🚀 快速开始
 
@@ -96,84 +99,9 @@ volunteer-management/
 │   └── schedule.py
 ├── scripts/         # 工具脚本
 │   └─init_system.─ py  # 表单验证脚本
-├── docs/            # 文档
-│   └── 表单创建指南.md
 ├── requirements.txt # 依赖
 ├── .env.example     # 配置模板
 └── README.md        # 本文件
-```
-
----
-
-## 💻 基础使用
-
-### 创建义工
-
-```python
-from models.volunteer import VolunteerModel
-
-VolunteerModel.create(
-    name="张三",
-    phone="13800138000",
-    age=35,
-    gender="男",
-    skills="医疗、摄影",
-    status="活跃"
-)
-```
-
-### 创建活动
-
-```python
-from models.event import EventModel
-
-EventModel.create(
-    event_name="春节祈福法会",
-    event_date="2024-02-10",
-    start_time="09:00",
-    end_time="17:00",
-    location="大雄宝殿",
-    volunteers_needed=20,
-    status="计划中"
-)
-```
-
-### 排班签到
-
-```python
-from models.schedule import ScheduleModel
-
-# 创建排班
-schedule_id = ScheduleModel.create(
-    volunteer_name="张三",
-    volunteer_phone="13800138000",
-    event_name="春节祈福法会",
-    event_date="2024-02-10",
-    role="接待员",
-    status="已排班"
-)
-
-# 签到
-ScheduleModel.check_in(schedule_id)
-
-# 签退（记录工时）
-ScheduleModel.check_out(schedule_id, hours=8.0)
-```
-
-### 数据查询
-
-```python
-# 获取所有义工
-volunteers = VolunteerModel.list_all()
-
-# 按状态筛选
-active = VolunteerModel.list_by_status("活跃")
-
-# 按名字搜索
-found = VolunteerModel.search_by_name("张三")
-
-# 义工工时统计
-hours = ScheduleModel.get_volunteer_hours("张三")
 ```
 
 ---
@@ -226,79 +154,6 @@ python scripts/init_system.py
 - [简道云 API 文档](https://hc.jiandaoyun.com/open/10992)
 - [表单和数据接口](https://hc.jiandaoyun.com/open/10993)
 
----
-
-## 📝 数据字段说明
-
-### 义工档案表（VolunteerModel）
-
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| name | 文本 | ✅ | 义工姓名 |
-| phone | 文本 | ✅ | 手机号码 |
-| age | 数字 | ✅ | 年龄（16-80） |
-| gender | 下拉框 | ✅ | 性别（男/女） |
-| skills | 多行文本 | ❌ | 技能特长 |
-| status | 下拉框 | ✅ | 状态（活跃/暂停/退出） |
-
-### 活动库表（EventModel）
-
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| event_name | 文本 | ✅ | 活动名称 |
-| event_date | 日期 | ✅ | 活动日期 |
-| start_time | 时间 | ✅ | 开始时间 |
-| end_time | 时间 | ✅ | 结束时间 |
-| location | 文本 | ✅ | 活动地点 |
-| volunteers_needed | 数字 | ❌ | 需要人数 |
-| status | 下拉框 | ✅ | 活动状态 |
-
-### 排班签到表（ScheduleModel）
-
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| volunteer_name | 文本 | ✅ | 义工姓名 |
-| volunteer_phone | 文本 | ✅ | 义工电话 |
-| event_name | 文本 | ✅ | 活动名称 |
-| event_date | 日期 | ✅ | 活动日期 |
-| role | 下拉框 | ❌ | 担任角色 |
-| status | 下拉框 | ✅ | 签到状态 |
-| hours | 数字 | ❌ | 工时 |
-
----
-
-## 🛠️ 开发指南
-
-### 扩展 API 客户端
-
-在 `core/api_client.py` 中添加新方法：
-
-```python
-def custom_query(self, entry_id: str, custom_filter: Dict):
-    """自定义查询"""
-    endpoint = f"/app/{self.app_id}/entry/{entry_id}/data"
-    payload = {"filter": custom_filter, "limit": 100}
-    return self.request('POST', endpoint, payload)
-```
-
-### 添加新的数据模型
-
-参考 `models/volunteer.py` 创建新模型：
-
-```python
-from core.api_client import JDYClient
-from config.settings import YOUR_ENTRY_ID
-
-class YourModel:
-    client = JDYClient()
-    entry_id = YOUR_ENTRY_ID
-    
-    @classmethod
-    def create(cls, **data):
-        return cls.client.create_data(cls.entry_id, data)
-```
-
----
 
 ## 📄 许可证
 
