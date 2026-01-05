@@ -13,7 +13,7 @@ class VolunteerModel:
     FIELD_ID_CARD = "_widget_1767516573304"             # 身份证号码
     FIELD_AGE = "_widget_1767515266474"                 # 年龄
     FIELD_GENDER = "_widget_1767515266475"              # 性别
-    FIELD_SKILLS = "_widget_1767515266477"              # 技能特长（多选）
+    FIELD_SKILLS = "_widget_1767520662777"              # 技能特长（复选框）
     FIELD_AREA = "_widget_1767515266480"                # 常住区域
     FIELD_AVAILABLE_TIME = "_widget_1767515266482"      # 可服务时段（多选）
     FIELD_IS_ORDAINED = "_widget_1767516573307"         # 是否皈依

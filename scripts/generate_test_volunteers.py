@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 生成 200 条测试义工数据 - 广州地区版本
+支持复选框技能字段
 """
 import sys
 import os
@@ -14,7 +15,7 @@ from models.volunteer import VolunteerModel
 FIRST_NAMES = ['张', '李', '王', '赵', '孙', '周', '吴', '郑', '刘', '陈', '杨', '黄', '何', '萧', '曾']
 LAST_NAMES = ['三', '四', '五', '六', '七', '八', '九', '十', '一', '二', '勇', '强', '健', '超', '明']
 
-# 技能特长 - 按表单设计
+# 技能特长 - 复选框格式（列表）
 SKILLS = [
     ['编程'],
     ['法务'],
@@ -53,7 +54,7 @@ AREAS = [
     '白云区',
 ]
 
-# 可服务时段 - 按表单设计的具体时间
+# 可服务时段 - 复选框格式
 TIME_SLOTS = [
     ['上午'],           # 08:00 ~ 12:00
     ['下午'],           # 12:00 ~ 04:30
@@ -109,9 +110,9 @@ def generate_volunteer():
         VolunteerModel.FIELD_ID_CARD: generate_id_card(),
         VolunteerModel.FIELD_AGE: age,
         VolunteerModel.FIELD_GENDER: gender,
-        VolunteerModel.FIELD_SKILLS: random.choice(SKILLS),
+        VolunteerModel.FIELD_SKILLS: random.choice(SKILLS),  # 复选框格式：列表
         VolunteerModel.FIELD_AREA: random.choice(AREAS),
-        VolunteerModel.FIELD_AVAILABLE_TIME: random.choice(TIME_SLOTS),
+        VolunteerModel.FIELD_AVAILABLE_TIME: random.choice(TIME_SLOTS),  # 复选框格式：列表
         VolunteerModel.FIELD_IS_ORDAINED: ordained,
         VolunteerModel.FIELD_JOIN_DATE: join_date,
         VolunteerModel.FIELD_STATUS: random.choice(STATUSES),
